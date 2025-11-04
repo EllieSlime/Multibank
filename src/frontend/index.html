@@ -1,50 +1,1109 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Auth</title>
-    <style>
-      :root { color-scheme: light dark; }
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 2rem; }
-      form, .card { max-width: 420px; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; }
-      label { display: block; margin: 0.5rem 0 0.25rem; }
-      input { width: 100%; padding: 0.5rem; }
-      button { margin-top: 0.75rem; padding: 0.5rem 0.75rem; cursor: pointer; }
-      .row { display: flex; gap: 1rem; align-items: center; }
-      .muted { opacity: 0.8; font-size: 0.9rem; }
-      .error { color: #b00020; white-space: pre-wrap; }
-      pre { white-space: pre-wrap; word-break: break-word; }
-    </style>
-  </head>
-  <body>
-    <h1>Login</h1>
-    <form id="login-form" class="card">
-      <label for="identifier">Email or phone</label>
-      <input id="identifier" name="identifier" type="text" placeholder="email@example.com or 1234567890" required />
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" required />
-      <button type="submit">Login</button>
-      <div id="login-error" class="error" role="alert"></div>
-    </form>
-
-    <h2>Session</h2>
-    <div class="card">
-      <div class="row">
-        <button id="logout-btn">Logout</button>
-        <button id="refresh-btn">Refresh access token</button>
-      </div>
-      <p class="muted">Tokens are stored in localStorage for demo only.</p>
-      <h3>Access token</h3>
-      <pre id="access-token"></pre>
-      <h3>Refresh token</h3>
-      <pre id="refresh-token"></pre>
-      <div id="action-error" class="error" role="alert"></div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiBank - Финтех Платформа</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/script.js"></script>
+</head>
+<body>
+    <!-- Анимированный фон -->
+    <div class="background-animation">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
     </div>
 
-    <script src="/static/login.js" defer></script>
-  </body>
-  </html>
+    <!-- Боковая панель навигации -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-university"></i> MultiBank
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#" onclick="showPage('home')" class="active"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="#" onclick="showPage('registration')"><i class="fas fa-user-plus"></i> Регистрация</a></li>
+                <li><a href="#" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Вход</a></li>
+                <li><a href="#" onclick="showPage('accounts')"><i class="fas fa-wallet"></i> Мои счета</a></li>
+                <li><a href="#" onclick="showPage('account-detail')"><i class="fas fa-credit-card"></i> Детали счета</a></li>
+                <li><a href="#" onclick="showPage('history')"><i class="fas fa-history"></i> История</a></li>
+                <li><a href="#" onclick="showPage('forecasting')"><i class="fas fa-chart-line"></i> Прогнозирование</a></li>
+                <li><a href="#" onclick="showPage('ai-assistant')"><i class="fas fa-robot"></i> ИИ-помощник</a></li>
+                <li><a href="#" onclick="showPage('notifications')"><i class="fas fa-bell"></i> Уведомления</a></li>
+                <li><a href="#" onclick="showPage('investments')"><i class="fas fa-chart-pie"></i> Инвестиции</a></li>
+                <li><a href="#" onclick="showPage('analytics')"><i class="fas fa-chart-bar"></i> Аналитика</a></li>
+                <li><a href="#" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>&copy; 2023 MultiBank. Все права защищены.</p>
+        </div>
+    </aside>
 
+    <!-- Верхняя панель для мобильных -->
+    <nav class="top-nav">
+        <div class="top-nav-container">
+            <div class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="top-nav-logo">
+                <i class="fas fa-university"></i> MultiBank
+            </div>
+            <div class="top-nav-actions">
+                <div class="notification-icon" onclick="showPage('notifications')">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Основной контент -->
+    <main class="main-content" id="mainContent">
+        <!-- Главная страница -->
+        <section id="home" class="page active">
+            <div class="container">
+                <div class="hero">
+                    <h1>MultiBank</h1>
+                    <p>Современная финтех-платформа для управления вашими финансами</p>
+                    <a href="#" class="btn btn-primary" onclick="showPage('login')">Войти в аккаунт</a>
+                </div>
 
+                <div class="balance-cards">
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-ruble-sign"></i>
+                        </div>
+                        <div class="balance-amount">245,680.50 ₽</div>
+                        <div class="balance-title">Общий баланс в рублях</div>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="balance-amount">3,450.25 $</div>
+                        <div class="balance-title">Баланс в долларах</div>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fab fa-bitcoin"></i>
+                        </div>
+                        <div class="balance-amount">0.2548 BTC</div>
+                        <div class="balance-title">Криптовалютный баланс</div>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="balance-amount">5</div>
+                        <div class="balance-title">Активных счетов</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Подключенные счета</h3>
+                        <a href="#" class="btn-text" onclick="showPage('accounts')">Все счета <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="accounts-container">
+                        <div class="account-card" onclick="showPage('account-detail')">
+                            <div class="account-icon" style="color: #3B82F6;">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <h3 class="account-title">Основная карта</h3>
+                            <p class="account-number">**** 4832</p>
+                            <div class="account-balance">124,560.75 ₽</div>
+                            <div class="account-link">Подробнее <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                        
+                        <div class="account-card" onclick="showPage('account-detail')">
+                            <div class="account-icon" style="color: #10B981;">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <h3 class="account-title">Накопительный счет</h3>
+                            <p class="account-number">**** 7641</p>
+                            <div class="account-balance">85,340.20 ₽</div>
+                            <div class="account-link">Подробнее <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                        
+                        <div class="account-card" onclick="showPage('account-detail')">
+                            <div class="account-icon" style="color: #F59E0B;">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <h3 class="account-title">Долларовый счет</h3>
+                            <p class="account-number">**** 2198</p>
+                            <div class="account-balance">3,450.25 $</div>
+                            <div class="account-link">Подробнее <i class="fas fa-arrow-right"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Быстрый перевод</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-group">
+                            <label class="form-label">Счет списания</label>
+                            <select class="form-select">
+                                <option value="">Основная карта (124,560.75 ₽)</option>
+                                <option value="">Накопительный счет (85,340.20 ₽)</option>
+                                <option value="">Долларовый счет (3,450.25 $)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Счет зачисления</label>
+                            <select class="form-select">
+                                <option value="">Внутренний перевод</option>
+                                <option value="">Другой банк (СБП)</option>
+                                <option value="">Международный перевод</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Сумма</label>
+                            <input type="text" class="form-input" placeholder="0.00">
+                        </div>
+                        
+                        <button class="btn btn-primary">Выполнить перевод</button>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Траты за месяц</h3>
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-pie fa-3x"></i>
+                    </div>
+                    <p>Кликните для детального просмотра</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Последние транзакции</h3>
+                        <a href="#" class="btn-text" onclick="showPage('history')">Вся история <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="transactions-list">
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <h4>Магазин продуктов</h4>
+                                    <p>15 окт. 2023</p>
+                                </div>
+                            </div>
+                            <div class="transaction-amount negative">-2,450.50 ₽</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <h4>Зарплата</h4>
+                                    <p>10 окт. 2023</p>
+                                </div>
+                            </div>
+                            <div class="transaction-amount positive">+85,000.00 ₽</div>
+                        </div>
+                        
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="transaction-details">
+                                    <h4>Коммунальные услуги</h4>
+                                    <p>5 окт. 2023</p>
+                                </div>
+                            </div>
+                            <div class="transaction-amount negative">-7,320.15 ₽</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 1: Регистрация -->
+        <section id="registration" class="page">
+            <div class="container">
+                <div class="form-container">
+                    <h2 class="form-title">Регистрация в MultiBank</h2>
+                    
+                    <form id="registration-form">
+                        <div class="form-group">
+                            <label class="form-label">ФИО</label>
+                            <input type="text" class="form-input" name="fio" placeholder="Ваше полное имя" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" name="email" placeholder="Ваш email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" class="form-input" name="phone" placeholder="Ваш телефон" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Дата рождения</label>
+                            <input type="date" class="form-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Адрес проживания</label>
+                            <input type="text" class="form-input" placeholder="Ваш адрес" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Паспортные данные</label>
+                            <input type="text" class="form-input" placeholder="Серия и номер" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Пароль</label>
+                            <input type="password" class="form-input" name="password" placeholder="Придумайте пароль" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Подтверждение пароля</label>
+                            <input type="password" class="form-input" name="confirmPassword" placeholder="Повторите пароль" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="agree-terms" required>
+                                <label for="agree-terms">Я согласен с условиями использования и политикой конфиденциальности</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="oauth-connect">
+                                <label for="oauth-connect">Подключить OAuth 2.0 / OpenID Connect к банковским API</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-center">Зарегистрироваться</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 2: Вход в систему -->
+        <section id="login" class="page">
+            <div class="container">
+                <div class="form-container">
+                    <h2 class="form-title">Вход в систему</h2>
+                    
+                    <form id="login-form">
+                    <div class="form-group">
+                        <label class="form-label">Логин или Email</label>
+                        <input type="text" class="form-input" name="identifier" placeholder="Введите логин или email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" class="form-input" name="password" placeholder="Введите пароль" required>
+                    </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="remember-me">
+                                <label for="remember-me">Запомнить меня</label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-center">Войти</button>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <p>Или войдите с помощью:</p>
+                            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 15px;">
+                                <button type="button" class="btn btn-outline"><i class="fas fa-fingerprint"></i> Биометрия</button>
+                                <button type="button" class="btn btn-outline"><i class="fas fa-sms"></i> SMS-код</button>
+                                <button type="button" class="btn btn-outline"><i class="fas fa-mobile-alt"></i> ПИН-код</button>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <a href="#" style="color: var(--primary-color);">Забыли пароль?</a>
+                            <a href="#" style="color: var(--primary-color);" onclick="showPage('registration')">Нет аккаунта? Зарегистрироваться</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 4: Детали счета -->
+        <section id="account-detail" class="page">
+            <div class="container">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Основная карта **** 4832</h2>
+                        <div>
+                            <button class="btn btn-outline" style="margin-right: 10px;"><i class="fas fa-exchange-alt"></i> Перевод</button>
+                            <button class="btn btn-primary"><i class="fas fa-plus"></i> Пополнить</button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="balance-amount" style="text-align: center; margin-bottom: 30px;">124,560.75 ₽</div>
+                        
+                        <div class="chart-container">
+                            <h3>Статистика по счету</h3>
+                            <div class="chart-placeholder">
+                                <i class="fas fa-chart-line fa-3x"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Прогнозирование</h3>
+                            </div>
+                            <div class="card-content">
+                                <p>На основе предыдущих трат и поступлений прогнозируемое состояние счета через месяц: <strong>118,450.20 ₽</strong></p>
+                                <div class="form-group" style="margin-top: 15px;">
+                                    <label class="form-label">Добавить планируемую трату</label>
+                                    <input type="text" class="form-input" placeholder="Описание траты">
+                                    <input type="number" class="form-input" placeholder="Сумма" style="margin-top: 10px;">
+                                    <button class="btn btn-outline" style="margin-top: 10px;">Добавить</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 15px; margin-top: 20px;">
+                            <button class="btn btn-outline"><i class="fas fa-eye-slash"></i> Скрыть счет</button>
+                            <button class="btn btn-outline" style="color: var(--error-color); border-color: var(--error-color);"><i class="fas fa-trash"></i> Исключить счет</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 5: История -->
+        <section id="history" class="page">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">История операций</h2>
+                    <p class="section-subtitle">Подробный отчет обо всех тратах и поступлениях</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Фильтры</h3>
+                    </div>
+                    <div class="card-content">
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <select class="form-select" style="flex: 1; min-width: 150px;">
+                                <option value="">Все счета</option>
+                                <option value="">Основная карта</option>
+                                <option value="">Накопительный счет</option>
+                                <option value="">Долларовый счет</option>
+                            </select>
+                            
+                            <select class="form-select" style="flex: 1; min-width: 150px;">
+                                <option value="">Все категории</option>
+                                <option value="">Продукты</option>
+                                <option value="">Транспорт</option>
+                                <option value="">Развлечения</option>
+                                <option value="">Коммунальные услуги</option>
+                            </select>
+                            
+                            <input type="date" class="form-input" style="flex: 1; min-width: 150px;">
+                            <input type="date" class="form-input" style="flex: 1; min-width: 150px;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transactions-list">
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Магазин продуктов</h4>
+                                <p>15 окт. 2023 • Основная карта</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount negative">-2,450.50 ₽</div>
+                    </div>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Зарплата</h4>
+                                <p>10 окт. 2023 • Основная карта</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount positive">+85,000.00 ₽</div>
+                    </div>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Коммунальные услуги</h4>
+                                <p>5 окт. 2023 • Основная карта</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount negative">-7,320.15 ₽</div>
+                    </div>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-gas-pump"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Заправка автомобиля</h4>
+                                <p>3 окт. 2023 • Основная карта</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount negative">-3,250.00 ₽</div>
+                    </div>
+                    
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="transaction-details">
+                                <h4>Ресторан</h4>
+                                <p>1 окт. 2023 • Основная карта</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount negative">-5,600.00 ₽</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Диаграмма расходов по категориям</h3>
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-pie fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 6: Мои счета -->
+        <section id="accounts" class="page">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Мои счета</h2>
+                    <p class="section-subtitle">Управление всеми вашими счетами в одном месте</p>
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <button class="btn btn-primary">Все счета</button>
+                    <button class="btn btn-outline">Скрытые счета</button>
+                    <button class="btn btn-outline"><i class="fas fa-plus"></i> Добавить счет</button>
+                </div>
+                
+                <div class="accounts-container">
+                    <div class="account-card" onclick="showPage('account-detail')">
+                        <div class="account-icon" style="color: #3B82F6;">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <h3 class="account-title">Основная карта</h3>
+                        <p class="account-number">**** 4832</p>
+                        <div class="account-balance">124,560.75 ₽</div>
+                        <div class="account-link">Подробнее <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                    
+                    <div class="account-card" onclick="showPage('account-detail')">
+                        <div class="account-icon" style="color: #10B981;">
+                            <i class="fas fa-piggy-bank"></i>
+                        </div>
+                        <h3 class="account-title">Накопительный счет</h3>
+                        <p class="account-number">**** 7641</p>
+                        <div class="account-balance">85,340.20 ₽</div>
+                        <div class="account-link">Подробнее <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                    
+                    <div class="account-card" onclick="showPage('account-detail')">
+                        <div class="account-icon" style="color: #F59E0B;">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <h3 class="account-title">Долларовый счет</h3>
+                        <p class="account-number">**** 2198</p>
+                        <div class="account-balance">3,450.25 $</div>
+                        <div class="account-link">Подробнее <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                    
+                    <div class="account-card" onclick="showPage('account-detail')">
+                        <div class="account-icon" style="color: #8B5CF6;">
+                            <i class="fab fa-bitcoin"></i>
+                        </div>
+                        <h3 class="account-title">Криптокошелек</h3>
+                        <p class="account-number">BTC Wallet</p>
+                        <div class="account-balance">0.2548 BTC</div>
+                        <div class="account-link">Подробнее <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                    
+                    <div class="account-card" onclick="showPage('account-detail')">
+                        <div class="account-icon" style="color: #EF4444;">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <h3 class="account-title">Кредитная карта</h3>
+                        <p class="account-number">**** 5532</p>
+                        <div class="account-balance">-45,200.00 ₽</div>
+                        <div class="account-link">Подробнее <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Быстрые действия</h3>
+                    </div>
+                    <div class="card-content">
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <button class="btn btn-outline"><i class="fas fa-eye-slash"></i> Скрыть выбранные</button>
+                            <button class="btn btn-outline"><i class="fas fa-eye"></i> Показать выбранные</button>
+                            <button class="btn btn-outline" style="color: var(--error-color); border-color: var(--error-color);"><i class="fas fa-trash"></i> Удалить выбранные</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 7: Прогнозирование -->
+        <section id="forecasting" class="page">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Прогнозирование бюджета</h2>
+                    <p class="section-subtitle">Планируйте свои финансы на основе анализа истории операций</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Прогноз на следующий месяц</h3>
+                        <div>
+                            <select class="form-select" style="display: inline-block; width: auto;">
+                                <option value="">Октябрь 2023</option>
+                                <option value="">Ноябрь 2023</option>
+                                <option value="">Декабрь 2023</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-container">
+                            <div class="chart-placeholder">
+                                <i class="fas fa-chart-line fa-3x"></i>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                            <div class="balance-card">
+                                <div class="balance-icon">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="balance-amount">45,680 ₽</div>
+                                <div class="balance-title">Прогнозируемые доходы</div>
+                            </div>
+                            
+                            <div class="balance-card">
+                                <div class="balance-icon">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <div class="balance-amount">38,450 ₽</div>
+                                <div class="balance-title">Прогнозируемые расходы</div>
+                            </div>
+                            
+                            <div class="balance-card">
+                                <div class="balance-icon">
+                                    <i class="fas fa-balance-scale"></i>
+                                </div>
+                                <div class="balance-amount">+7,230 ₽</div>
+                                <div class="balance-title">Ожидаемый остаток</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Планирование расходов</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-group">
+                            <label class="form-label">Добавить запланированную трату</label>
+                            <input type="text" class="form-input" placeholder="Описание траты">
+                            <input type="number" class="form-input" placeholder="Сумма" style="margin-top: 10px;">
+                            <select class="form-select" style="margin-top: 10px;">
+                                <option value="">Выберите счет</option>
+                                <option value="">Автоматический выбор</option>
+                                <option value="">Основная карта</option>
+                                <option value="">Накопительный счет</option>
+                            </select>
+                            <button class="btn btn-primary" style="margin-top: 10px;">Добавить</button>
+                        </div>
+                        
+                        <div class="transactions-list" style="margin-top: 20px;">
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Аренда квартиры</h4>
+                                        <p>Запланировано на 5 ноября</p>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount negative">-25,000.00 ₽</div>
+                            </div>
+                            
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Крупная покупка</h4>
+                                        <p>Запланировано на 15 ноября</p>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount negative">-12,500.00 ₽</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 8: ИИ-помощник - СОВРЕМЕННЫЙ ДИЗАЙН -->
+        <section id="ai-assistant" class="page">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">ИИ-помощник</h2>
+                    <p class="section-subtitle">Ваш персональный помощник в мире финансов</p>
+                </div>
+                
+                <div class="ai-chat-container-modern">
+                    <div class="ai-chat-header-modern">
+                        <div class="ai-avatar-modern">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="ai-info-modern">
+                            <h3>Финансовый помощник</h3>
+                            <p>Всегда онлайн, готов помочь</p>
+                        </div>
+                        <div class="ai-status-modern">
+                            <div class="status-indicator-modern"></div>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-chat-messages-modern" id="chatMessagesModern">
+                        <div class="message-modern bot">
+                            <div class="message-avatar-modern">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content-modern">
+                                <p>Привет! Я ваш ИИ-помощник MultiBank. Чем могу помочь в управлении вашими финансами?</p>
+                                <div class="message-time-modern">10:30</div>
+                            </div>
+                        </div>
+                        <div class="message-modern user">
+                            <div class="message-content-modern">
+                                <p>Покажи мои последние траты</p>
+                                <div class="message-time-modern">10:31</div>
+                            </div>
+                            <div class="message-avatar-modern">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="message-modern bot">
+                            <div class="message-avatar-modern">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content-modern">
+                                <p>За последнюю неделю вы потратили 15,420 рублей. Основные категории: продукты (4,200 руб.), транспорт (2,800 руб.), развлечения (3,500 руб.).</p>
+                                <div class="message-time-modern">10:31</div>
+                            </div>
+                        </div>
+                        <div class="message-modern user">
+                            <div class="message-content-modern">
+                                <p>Сколько я смогу накопить через полгода, если откладывать 20% от зарплаты?</p>
+                                <div class="message-time-modern">10:32</div>
+                            </div>
+                            <div class="message-avatar-modern">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="message-modern bot">
+                            <div class="message-avatar-modern">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content-modern">
+                                <p>При вашей текущей зарплате 85,000 рублей и откладывании 20% (17,000 руб. в месяц), через 6 месяцев вы накопите 102,000 рублей без учета процентов.</p>
+                                <div class="message-time-modern">10:32</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-suggestions-modern">
+                        <div class="ai-suggestion-modern">Показать баланс</div>
+                        <div class="ai-suggestion-modern">Анализ расходов</div>
+                        <div class="ai-suggestion-modern">Инвестиционные идеи</div>
+                        <div class="ai-suggestion-modern">Планирование бюджета</div>
+                    </div>
+                    
+                    <div class="ai-chat-input-container-modern">
+                        <div class="input-wrapper-modern">
+                            <input type="text" class="ai-chat-input-modern" placeholder="Введите сообщение..." id="chatInputModern">
+                            <div class="chat-actions-modern">
+                                <button class="chat-action-btn-modern" id="attachBtnModern">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                                <button class="chat-action-btn-modern" id="voiceBtnModern">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button class="chat-action-btn-modern primary" id="sendBtnModern">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 9: Уведомления -->
+        <section id="notifications" class="page">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Уведомления</h2>
+                    <p class="section-subtitle">Все важные оповещения в одном месте</p>
+                </div>
+                
+                <div class="notifications-list">
+                    <div class="notification-item">
+                        <div class="notification-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--error-color);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h4>Предупреждение о перерасходе</h4>
+                            <p>Вы превысили бюджет по категории "Развлечения" на 2,450 рублей.</p>
+                            <div class="notification-time">Сегодня, 14:30</div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color);">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h4>Поступление средств</h4>
+                            <p>На ваш счет поступило 85,000 рублей от ООО "Компания".</p>
+                            <div class="notification-time">Вчера, 09:15</div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--primary-color);">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h4>Напоминание о платеже</h4>
+                            <p>Через 3 дня запланирован платеж по кредитной карте на сумму 15,200 рублей.</p>
+                            <div class="notification-time">2 дня назад</div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning-color);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h4>Отчет за месяц</h4>
+                            <p>Ваш финансовый отчет за сентябрь готов к просмотру.</p>
+                            <div class="notification-time">5 дней назад</div>
+                        </div>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div class="notification-content">
+                            <h4>Закрытие счета</h4>
+                            <p>Срок действия вашей карты **** 3271 истекает через 30 дней.</p>
+                            <div class="notification-time">Неделю назад</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-outline">Пометить все как прочитанные</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 10: Аналитика по инвестициям -->
+        <section id="investments" class="page">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Инвестиционная аналитика</h2>
+                    <p class="section-subtitle">Рекомендации, статистика и прогнозы для ваших инвестиций</p>
+                </div>
+                
+                <div class="balance-cards">
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="balance-amount">+12.5%</div>
+                        <div class="balance-title">Доходность за год</div>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="balance-amount">456,800 ₽</div>
+                        <div class="balance-title">Общая стоимость портфеля</div>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="balance-amount">18</div>
+                        <div class="balance-title">Активных активов</div>
+                    </div>
+                    
+                    <div class="balance-card">
+                        <div class="balance-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="balance-amount">Средний</div>
+                        <div class="balance-title">Уровень риска</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Структура портфеля</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-pie fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Рекомендации</h3>
+                        <a href="#" class="btn-text">Все рекомендации <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="card-content">
+                        <div class="transactions-list">
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color);">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Технологический сектор</h4>
+                                        <p>Рекомендуем увеличить долю в акциях технологических компаний</p>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount positive">+7.2%</div>
+                            </div>
+                            
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--error-color);">
+                                        <i class="fas fa-arrow-down"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Энергетический сектор</h4>
+                                        <p>Рекомендуем сократить долю в энергетических компаниях</p>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount negative">-3.5%</div>
+                            </div>
+                            
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--primary-color);">
+                                        <i class="fas fa-plus"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Облигации</h4>
+                                        <p>Рекомендуем добавить корпоративные облигации для диверсификации</p>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount">Новая</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Страница 11: Аналитика по продуктам банков -->
+        <section id="analytics" class="page">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Аналитика банковских продуктов</h2>
+                    <p class="section-subtitle">Сравнение и анализ различных финансовых продуктов</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Сравнение дебетовых карт</h3>
+                    </div>
+                    <div class="card-content">
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--light-gray);">
+                                        <th style="padding: 15px; text-align: left;">Банк</th>
+                                        <th style="padding: 15px; text-align: left;">Название карты</th>
+                                        <th style="padding: 15px; text-align: left;">Процент на остаток</th>
+                                        <th style="padding: 15px; text-align: left;">Кэшбэк</th>
+                                        <th style="padding: 15px; text-align: left;">Обслуживание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="border-bottom: 1px solid var(--light-gray);">
+                                        <td style="padding: 15px;">Тинькофф</td>
+                                        <td style="padding: 15px;">Tinkoff Black</td>
+                                        <td style="padding: 15px;">до 6%</td>
+                                        <td style="padding: 15px;">до 30%</td>
+                                        <td style="padding: 15px;">0-99 ₽/мес</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid var(--light-gray);">
+                                        <td style="padding: 15px;">Сбербанк</td>
+                                        <td style="padding: 15px;">Сбербанк Prime</td>
+                                        <td style="padding: 15px;">до 5%</td>
+                                        <td style="padding: 15px;">до 10%</td>
+                                        <td style="padding: 15px;">0 ₽/мес</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid var(--light-gray);">
+                                        <td style="padding: 15px;">Альфа-Банк</td>
+                                        <td style="padding: 15px;">Альфа-Карта</td>
+                                        <td style="padding: 15px;">до 7%</td>
+                                        <td style="padding: 15px;">до 10%</td>
+                                        <td style="padding: 15px;">0 ₽/мес</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 15px;">ВТБ</td>
+                                        <td style="padding: 15px;">ВТБ Мультикарта</td>
+                                        <td style="padding: 15px;">до 5%</td>
+                                        <td style="padding: 15px;">до 5%</td>
+                                        <td style="padding: 15px;">0 ₽/мес</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Лучшие предложения для вас</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="transactions-list">
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success-color);">
+                                        <i class="fas fa-piggy-bank"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Вклад "Накопительный"</h4>
+                                        <p>До 8.5% годовых с возможностью пополнения</p>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount positive">8.5%</div>
+                            </div>
+                            
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--primary-color);">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Кредитная карта "Выгодная"</h4>
+                                        <p>Льготный период до 120 дней, бесплатное обслуживание</p>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount">0%</div>
+                            </div>
+                            
+                            <div class="transaction-item">
+                                <div class="transaction-info">
+                                    <div class="transaction-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning-color);">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Ипотека "Новостройка"</h4>
+                                        <p>Ставка от 7.5% годовых, первоначальный взнос от 15%</p>
+                                    </div>
+                                </div>
+                                <div class="transaction-amount">7.5%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Футер -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>MultiBank</h3>
+                        <p>Современная финтех-платформа для управления вашими финансами. Объединяем все ваши счета в одном месте.</p>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h3>Контакты</h3>
+                        <ul class="contact-info">
+                            <li><i class="fas fa-envelope"></i> support@multibank.ru</li>
+                            <li><i class="fas fa-phone"></i> +7 (800) 123-45-67</li>
+                            <li><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Банковская, 15</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h3>Социальные сети</h3>
+                        <p>
+                            <a href="#" style="color: var(--primary-color); margin-right: 15px;"><i class="fab fa-vk fa-2x"></i></a>
+                            <a href="#" style="color: var(--primary-color); margin-right: 15px;"><i class="fab fa-telegram fa-2x"></i></a>
+                            <a href="#" style="color: var(--primary-color);"><i class="fab fa-instagram fa-2x"></i></a>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="footer-bottom">
+                    <p>&copy; 2023 MultiBank. Все права защищены.</p>
+                </div>
+            </div>
+        </footer>
+    </main>
+</body>
+</html>
