@@ -1,0 +1,70 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    env_file:
+      - ./src/.env
+    environment:
+      # PostgreSQL container expects POSTGRES_* environment variables
+      POSTGRES_DB: ${PSQL_DB}
+      POSTGRES_USER: ${PSQL_USERNAME}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Mapped to 5433 to avoid conflict with local PostgreSQL
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PSQL_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Application
+  api:
+    build: .
+    # Do not publish directly; Nginx will proxy to this service
+    env_file:
+      - ./src/.env
+    environment:
+      # Build DSN dynamically from .env variables for Docker (using 'db' as hostname)
+      PSQL_DSN: postgresql+asyncpg://${PSQL_USERNAME}:${PSQL_PASSWORD}@db:5432/${PSQL_DB}
+      # Redis - use 'redis' as hostname (service name) when running in Docker
+      REDIS_DSN: redis://redis:6379/0
+      # Security Configuration
+      SECURITY_JWT_SECRET_KEY: ${SECURITY_JWT_SECRET_KEY}
+      SECURITY_ALGORITHM: ${SECURITY_ALGORITHM}
+      SECURITY_ACCESS_TOKEN_EXPIRE: ${SECURITY_ACCESS_TOKEN_EXPIRE}
+      SECURITY_REFRESH_TOKEN_EXPIRE_DAYS: ${SECURITY_REFRESH_TOKEN_EXPIRE_DAYS}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./src:/app
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running migrations...' &&
+        alembic upgrade head &&
+        echo 'Starting application...' &&
+        uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      "
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - api
+    ports:
+      - "8080:80" # change to "80:80" if you want it on port 80
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+
+
+volumes:
+  postgres_data:
