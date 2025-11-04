@@ -51,10 +51,17 @@ services:
         echo 'Starting application...' &&
         uvicorn main:app --host 0.0.0.0 --port 8000 --reload
       "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   nginx:
     image: nginx:alpine
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
       - "8080:80" # change to "80:80" if you want it on port 80
     volumes:

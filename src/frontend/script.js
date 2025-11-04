@@ -63,94 +63,94 @@
                 toggleSidebar();
             }
         });
-        
-        // Обработчики форм
-        document.getElementById('registration-form')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const form = this;
-    const formData = new FormData(form);
-
-    const password = formData.get('password');
-    const confirmPassword = formData.get('confirmPassword');
-    if (password !== confirmPassword) {
-        alert('Пароли не совпадают');
-        return;
-    }
-
-    const data = {
-        email_address: formData.get('email'),
-        phone_number: formData.get('phone'),
-        first_name: formData.get('fio').split(' ')[1] || '',
-        last_name: formData.get('fio').split(' ')[0] || '',
-        middle_name: formData.get('fio').split(' ')[2] || '',
-        password: password
-    };
-
-    try {
-        const response = await fetch('/api/v1/auth/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            alert('Регистрация успешна! Теперь войдите в систему.');
-            form.reset();
-            showPage('login');
-        } else {
-            alert(`Ошибка: ${result.detail || 'Неизвестная ошибка'}`);
-        }
-    } catch (error) {
-        console.error('Ошибка подключения к API:', error);
-        alert('Не удалось подключиться к серверу. Проверьте подключение.');
-    }
-});
-
-
-document.getElementById('login-form')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const form = this;
-    const formData = new FormData(form);
-    const identifier = formData.get('identifier');
-    const password = formData.get('password');
-
-    try {
-        const response = await fetch('/api/v1/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ identifier, password })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            // Сохраняем токен
-            localStorage.setItem('authToken', result.access_token);
-            localStorage.setItem('refreshToken', result.refresh_token);
-
-            alert('Вход выполнен! Добро пожаловать в MultiBank.');
-            showPage('home');
-            form.reset();
-        } else {
-            alert(`Ошибка: ${result.detail || 'Неверный логин или пароль'}`);
-        }
-    } catch (error) {
-        console.error('Ошибка подключения:', error);
-        alert('Не удалось подключиться к серверу');
-    }
-});
 
         
         // Загрузка сохраненной страницы при загрузке
             document.addEventListener('DOMContentLoaded', function() {
+                // Обработчик формы регистрации
+                document.getElementById('registration-form')?.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const form = this;
+                    const formData = new FormData(form);
+
+                    const password = formData.get('password');
+                    const confirmPassword = formData.get('confirmPassword');
+                    if (password !== confirmPassword) {
+                        alert('Пароли не совпадают');
+                        return;
+                    }
+
+                    const data = {
+                        email_address: formData.get('email'),
+                        phone_number: formData.get('phone'),
+                        first_name: formData.get('fio').split(' ')[1] || '',
+                        last_name: formData.get('fio').split(' ')[0] || '',
+                        middle_name: formData.get('fio').split(' ')[2] || '',
+                        password: password
+                    };
+
+                    try {
+                        const response = await fetch('/api/v1/auth/register', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert('Регистрация успешна! Теперь войдите в систему.');
+                            form.reset();
+                            showPage('login');
+                        } else {
+                            alert(`Ошибка: ${result.detail || 'Неизвестная ошибка'}`);
+                        }
+                    } catch (error) {
+                        console.error('Ошибка подключения к API:', error);
+                        alert('Не удалось подключиться к серверу. Проверьте подключение.');
+                    }
+                });
+
+                // Обработчик формы входа
+                document.getElementById('login-form')?.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const form = this;
+                    const formData = new FormData(form);
+                    const identifier = formData.get('identifier');
+                    const password = formData.get('password');
+
+                    try {
+                        const response = await fetch('/api/v1/auth/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ identifier, password })
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            // Сохраняем токен
+                            localStorage.setItem('authToken', result.access_token.access_token || result.access_token);
+                            localStorage.setItem('refreshToken', result.refresh_token);
+
+                            alert('Вход выполнен! Добро пожаловать в MultiBank.');
+                            showPage('home');
+                            form.reset();
+                        } else {
+                            alert(`Ошибка: ${result.detail || 'Неверный логин или пароль'}`);
+                        }
+                    } catch (error) {
+                        console.error('Ошибка подключения:', error);
+                        alert('Не удалось подключиться к серверу');
+                    }
+                });
+
                 // Проверяем, есть ли "токен" (условная авторизация)
                 const isLoggedIn = localStorage.getItem('authToken');
 

@@ -1,0 +1,418 @@
+openapi: 3.0.3
+info:
+  title: Multibank API+Front
+  description: REST API for managing users with authentication through JWT tokens, built on FastAPI, SQLAlchemy, PostgreSQL and Redis.
+  version: 1.0.0
+  contact:
+    name: API Support
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: http://localhost:8000
+    description: Direct API access (bypassing nginx)
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization endpoints
+  - name: Tokens
+    description: Token management endpoints
+  - name: Health
+    description: Health check endpoints
+
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account with email, phone number, and password
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+            examples:
+              example1:
+                summary: Example registration
+                value:
+                  email_address: "user@example.com"
+                  phone_number: "79123456789"
+                  first_name: "John"
+                  last_name: "Doe"
+                  middle_name: "Smith"
+                  password: "SecurePass123!"
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegisterAnswer'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Entity already exists"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Invalid email format"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Service is unavailable"
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      description: Authenticate user with email or phone number and password
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+            examples:
+              email_login:
+                summary: Login with email
+                value:
+                  identifier: "user@example.com"
+                  password: "SecurePass123!"
+              phone_login:
+                summary: Login with phone
+                value:
+                  identifier: "79123456789"
+                  password: "SecurePass123!"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLoginAnswer'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Authentication failed"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Invalid email format"
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Service is unavailable"
+
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      description: Invalidates user session token
+      operationId: logoutUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogout'
+            example:
+              token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLogoutAnswer'
+        '403':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Invalid token"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Tokens
+      summary: Refresh access token
+      description: Generate a new access token using a valid refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+            example:
+              refresh_token: "refresh_token_string_here"
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshAnswer'
+        '403':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Invalid token"
+        '404':
+          description: Token not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                detail: "Entity does not exist"
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check if the API is running and healthy
+      operationId: healthCheck
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: "healthy"
+
+  /:
+    get:
+      tags:
+        - Health
+      summary: Root endpoint
+      description: Serve frontend login page
+      operationId: root
+      responses:
+        '200':
+          description: Frontend HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+
+components:
+  schemas:
+    UserRegister:
+      type: object
+      required:
+        - email_address
+        - phone_number
+        - first_name
+        - last_name
+        - middle_name
+        - password
+      properties:
+        email_address:
+          type: string
+          format: email
+          description: User email address
+          example: "user@example.com"
+        phone_number:
+          type: string
+          pattern: '^\d{11}$'
+          description: Phone number (exactly 11 digits)
+          example: "79123456789"
+        first_name:
+          type: string
+          description: User first name
+          example: "John"
+        last_name:
+          type: string
+          description: User last name
+          example: "Doe"
+        middle_name:
+          type: string
+          description: User middle name
+          example: "Smith"
+        password:
+          type: string
+          minLength: 8
+          maxLength: 32
+          description: Password (8-32 chars, must contain uppercase, digit, and special char)
+          example: "SecurePass123!"
+          pattern: '^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]).{8,32}$'
+
+    UserRegisterAnswer:
+      type: object
+      properties:
+        email_address:
+          type: string
+          format: email
+          example: "user@example.com"
+        phone_number:
+          type: string
+          example: "79123456789"
+        first_name:
+          type: string
+          example: "John"
+        last_name:
+          type: string
+          example: "Doe"
+        middle_name:
+          type: string
+          example: "Smith"
+
+    UserLogin:
+      type: object
+      required:
+        - identifier
+        - password
+      properties:
+        identifier:
+          type: string
+          description: Email address or phone number (10 digits)
+          example: "user@example.com"
+        password:
+          type: string
+          description: User password
+          example: "SecurePass123!"
+
+    UserLoginAnswer:
+      type: object
+      properties:
+        access_token:
+          $ref: '#/components/schemas/Token'
+        refresh_token:
+          type: string
+          description: Refresh token string
+          example: "refresh_token_string_here"
+
+    UserLogout:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: Access token to invalidate
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    UserLogoutAnswer:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Successfully logged out"
+
+    TokenRefresh:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token to generate new access token
+          example: "refresh_token_string_here"
+
+    TokenRefreshAnswer:
+      type: object
+      properties:
+        access_token:
+          $ref: '#/components/schemas/Token'
+        refresh_token:
+          type: string
+          description: New refresh token
+          example: "new_refresh_token_string_here"
+
+    Token:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        token_type:
+          type: string
+          default: "bearer"
+          example: "bearer"
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+
+    ErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+          example: "Error message here"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication
+
